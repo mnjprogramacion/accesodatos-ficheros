@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Archivos</title>
+    <style>
+        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Archivos en la Carpeta</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Ruta</th>
+                <th>Tamaño (bytes)</th>
+                <th>Última Modificación</th>
+                <th>Directorio</th>
+                <th>Extensión</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="archivo : ${archivos}">
+                <td th:text="${archivo.name}">Nombre</td>
+                <td th:text="${archivo.path}">Ruta</td>
+                <td th:text="${archivo.size}">Tamaño</td>
+                <td th:text="${#dates.format(archivo.lastModified, 'dd/MM/yyyy HH:mm:ss')}">Fecha</td>
+                <td th:text="${archivo.directory}">Directorio</td>
+                <td th:text="${archivo.extension}">Extensión</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
