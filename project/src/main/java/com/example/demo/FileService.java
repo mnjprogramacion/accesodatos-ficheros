@@ -1,8 +1,13 @@
 package com.example.demo;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -10,7 +15,6 @@ import java.util.List;
 @Service
 public class FileService {
 
-    // Método que recibe la ruta de la carpeta y devuelve la lista de archivos
     public List<FileInfo> listarArchivos(String folderPath) {
         File folder = new File(folderPath);
         List<FileInfo> archivos = new ArrayList<>();
@@ -36,5 +40,26 @@ public class FileService {
         }
 
         return archivos;
+    }
+
+    public void guardarArchivo(String folderPath, MultipartFile file) throws IOException {
+        Path ruta = Paths.get(folderPath, file.getOriginalFilename());
+        Files.write(ruta, file.getBytes());
+    }
+
+    public boolean eliminar(String path) {
+        File file = new File(path);
+        if (!file.exists()) return false;
+
+        if (file.isDirectory()) {
+            // Eliminar contenido recursivamente
+            File[] archivos = file.listFiles();
+            if (archivos != null) {
+                for (File f : archivos) {
+                    eliminar(f.getAbsolutePath());
+                }
+            }
+        }
+        return file.delete();
     }
 }

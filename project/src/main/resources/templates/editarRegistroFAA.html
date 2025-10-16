@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Registro FAA</title>
+    <style>
+        table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
+        input { width: 100%; }
+        button { cursor: pointer; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Editar Registro FAA - Posición <span th:text="${pos}"></span></h1>
+
+    <form method="post" th:action="@{/guardarRegistroFAA}">
+        <input type="hidden" name="pos" th:value="${pos}">
+        <input type="hidden" name="archivoPath" th:value="${archivoPath}"> <!-- <-- Aquí -->
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Valor</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="campo, iterStat : ${campos}">
+                    <td th:text="${campo}"></td>
+                    <td>
+                        <input type="text" th:name="${campo}" th:value="${registro[campo]}" 
+                            th:attr="size=${camposLength[iterStat.index]}">
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button type="submit">Guardar Cambios</button>
+    </form>
+    
+    <!-- Botón para añadir nuevo registro -->
+    <form method="get" th:action="@{/nuevoRegistroFAA}">
+        <button type="submit">Nuevo Registro FAA</button>
+    </form>
+
+    <form method="get" th:action="@{/verCarpeta}">
+        <button type="submit">Volver</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="'Editar ' + ${archivoName}">Editar Archivo</title>
+</head>
+<body>
+    <h1 th:text="'Editar: ' + ${archivoName}"></h1>
+
+    <form method="post" action="/guardarArchivoTxt">
+        <textarea name="contenido" rows="20" cols="100" th:text="${contenido}"></textarea><br><br>
+        <input type="hidden" name="path" th:value="${archivoPath}">
+        <button type="submit">Guardar</button>
+    </form>
+
+    <br>
+    <form method="get" action="/verCarpeta">
+        <input type="hidden" name="path" th:value="${parentPath}">
+        <button type="submit">Volver</button>
+    </form>
+</body>
+</html>

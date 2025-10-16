@@ -5,10 +5,27 @@
     <title>Lista de Archivos</title>
     <style>
         table, th, td { border: 1px solid black; border-collapse: collapse; padding: 5px; }
+        button { cursor: pointer; }
     </style>
 </head>
 <body>
     <h1>Archivos en la Carpeta</h1>
+
+    <!-- Botón retroceder -->
+    <div th:if="${parentPath}">
+        <form method="get" action="/verCarpeta">
+            <input type="hidden" name="path" th:value="${parentPath}">
+            <button type="submit">⬅ Retroceder</button>
+        </form>
+    </div>
+
+    <!-- Formulario para subir archivos -->
+    <form method="post" enctype="multipart/form-data" action="/subirArchivo">
+        <input type="file" name="file" required>
+        <input type="hidden" name="currentPath" th:value="${currentPath}">
+        <button type="submit">Subir Archivo</button>
+    </form>
+
     <table>
         <thead>
             <tr>
@@ -18,16 +35,51 @@
                 <th>Última Modificación</th>
                 <th>Directorio</th>
                 <th>Extensión</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             <tr th:each="archivo : ${archivos}">
-                <td th:text="${archivo.name}">Nombre</td>
-                <td th:text="${archivo.path}">Ruta</td>
-                <td th:text="${archivo.size}">Tamaño</td>
-                <td th:text="${#dates.format(archivo.lastModified, 'dd/MM/yyyy HH:mm:ss')}">Fecha</td>
-                <td th:text="${archivo.directory}">Directorio</td>
-                <td th:text="${archivo.extension}">Extensión</td>
+                <td th:text="${archivo.name}"></td>
+                <td th:text="${archivo.path}"></td>
+                <td th:text="${archivo.size}"></td>
+                <td th:text="${#dates.format(archivo.lastModified, 'dd/MM/yyyy HH:mm:ss')}"></td>
+                <td th:text="${archivo.directory}"></td>
+                <td th:text="${archivo.extension}"></td>
+                <td>
+                    <!-- Botón Entrar solo para carpetas -->
+                    <div th:if="${archivo.directory}">
+                        <form method="get" action="/verCarpeta" style="display:inline">
+                            <input type="hidden" name="path" th:value="${archivo.path}">
+                            <button type="submit">Entrar</button>
+                        </form>
+                    </div>
+
+                    <!-- Botón Eliminar para archivos y carpetas -->
+                    <form method="post" action="/eliminar" style="display:inline">
+                        <input type="hidden" name="path" th:value="${archivo.path}">
+                        <input type="hidden" name="currentPath" th:value="${currentPath}">
+                        <button type="submit">Eliminar</button>
+                    </form>
+
+                    <!-- Botón Leer/Editar solo para archivos .txt -->
+                    <div th:if="${!archivo.directory and archivo.extension == 'txt'}" style="display:inline">
+                        <form method="get" action="/editarArchivo" style="display:inline">
+                            <input type="hidden" name="path" th:value="${archivo.path}">
+                            <button type="submit">Leer/Editar</button>
+                        </form>
+                    </div>
+
+                    <!-- Botón Leer/Editar para archivos FAA -->
+                    <div th:if="${!archivo.directory and archivo.extension == 'dat'}" style="display:inline">
+                        <form method="get" action="/editarArchivoFAA" style="display:inline">
+                            <input type="hidden" name="path" th:value="${archivo.path}">
+                            <button type="submit">Editar FAA</button>
+                        </form>
+                    </div>
+
+
+                </td>
             </tr>
         </tbody>
     </table>
