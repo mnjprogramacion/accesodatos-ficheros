@@ -12,6 +12,18 @@
 <body>
     <h1>Editar Registro FAA - Posición <span th:text="${pos}"></span></h1>
 
+    <!-- Desplegable para seleccionar registro existente -->
+    <form method="get" th:action="@{/editarArchivoFAA}">
+        <input type="hidden" name="path" th:value="${archivoPath}">
+        <label>Selecciona registro:</label>
+        <select name="pos">
+            <option th:each="p : ${posiciones}" th:value="${p}" th:text="${p}"></option>
+        </select>
+        <button type="submit">Ir</button>
+    </form>
+
+
+
     <form method="post" th:action="@{/guardarRegistroFAA}">
         <input type="hidden" name="pos" th:value="${pos}">
         <input type="hidden" name="archivoPath" th:value="${archivoPath}"> <!-- <-- Aquí -->
@@ -39,8 +51,10 @@
     
     <!-- Botón para añadir nuevo registro -->
     <form method="get" th:action="@{/nuevoRegistroFAA}">
+        <input type="hidden" name="path" th:value="${archivoPath}">
         <button type="submit">Nuevo Registro FAA</button>
     </form>
+
 
     <form method="get" th:action="@{/verCarpeta}">
         <button type="submit">Volver</button>

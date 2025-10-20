@@ -24,9 +24,10 @@ public class WebController {
     @Autowired
     private RandomAccessFileService rafService;
 
-    private final List<String> camposFAA = List.of("DNI","NOMBRE","DIRECCION","CP");
-    private final List<Integer> camposLengthFAA = List.of(9,32,32,5);
-    private final String faaFilePath = "C:\\Users\\matti\\Desktop\\file_binario_2.dat";
+    private final List<String> camposFAA = List.of("DNI", "NOMBRE", "DIRECCION", "CP");
+    private final List<Integer> camposLengthFAA = List.of(9, 32, 32, 5);
+
+
 
     @Autowired
     private FileService fileService;
@@ -69,28 +70,31 @@ public class WebController {
 
     // WebController.java
     @GetMapping("/editarRegistroFAA")
-    public String editarRegistroFAA(@RequestParam("pos") long pos, Model model) throws IOException {
-        Map<String,String> registro = rafService.leerRegistro(faaFilePath, camposFAA, camposLengthFAA, pos);
-        model.addAttribute("registro", registro);
-        model.addAttribute("campos", camposFAA);
-        model.addAttribute("camposLength", camposLengthFAA);
-        model.addAttribute("pos", pos);
-        // ¡Añade la ruta del archivo fijo!
-        model.addAttribute("archivoPath", faaFilePath); // <--- AÑADIDO
-        return "editarRegistroFAA";
-    }
+    public String editarRegistroFAA(@RequestParam("path") String path,
+                                @RequestParam("pos") long pos,
+                                Model model) throws IOException {
+    Map<String,String> registro = rafService.leerRegistro(path, camposFAA, camposLengthFAA, pos);
+    model.addAttribute("registro", registro);
+    model.addAttribute("campos", camposFAA);
+    model.addAttribute("camposLength", camposLengthFAA);
+    model.addAttribute("pos", pos);
+    model.addAttribute("archivoPath", path); // 👈 ahora dinámico
+    return "editarRegistroFAA";
+}
+
 
     @GetMapping("/verRegistrosFAA")
-    public String verRegistrosFAA(Model model) throws IOException {
-        // Para simplicidad solo mostramos posiciones existentes
-        File file = new File(faaFilePath);
+    public String verRegistrosFAA(@RequestParam("path") String path, Model model) throws IOException {
+        File file = new File(path);
         long longReg = camposLengthFAA.stream().mapToInt(Integer::intValue).sum();
-        long numReg = file.exists() ? file.length()/longReg : 0;
+        long numReg = file.exists() ? file.length() / longReg : 0;
         List<Long> posiciones = new ArrayList<>();
-        for(long i=0;i<numReg;i++) posiciones.add(i);
+        for (long i = 0; i < numReg; i++) posiciones.add(i);
         model.addAttribute("posiciones", posiciones);
+        model.addAttribute("archivoPath", path); // 👈 muy importante
         return "verRegistrosFAA";
     }
+
 
 
     @GetMapping("/editarArchivoFAA")
@@ -107,35 +111,40 @@ public class WebController {
         if (pos >= numReg) pos = 0;
 
         Map<String,String> registro = rafService.leerRegistro(path, camposFAA, camposLengthFAA, pos);
+        registro.put("ID", String.valueOf(pos)); // ID = posición del registro
+
+
+        // --- NUEVO: lista de posiciones existentes ---
+        List<Long> posiciones = new ArrayList<>();
+        for (long i = 0; i < numReg; i++) posiciones.add(i);
+
         model.addAttribute("registro", registro);
         model.addAttribute("campos", camposFAA);
         model.addAttribute("camposLength", camposLengthFAA);
         model.addAttribute("pos", pos);
-        model.addAttribute("archivoPath", path); // <-- Esto es crítico
+        model.addAttribute("archivoPath", path);
         model.addAttribute("numRegistros", numReg);
-
+        model.addAttribute("posiciones", posiciones); // 👈 añadimos
         return "editarRegistroFAA";
     }
 
+
     @GetMapping("/nuevoRegistroFAA")
-    public String nuevoRegistroFAA(Model model) throws IOException {
-        long nextId = rafService.getNextId(faaFilePath, camposLengthFAA);
+    public String nuevoRegistroFAA(@RequestParam("path") String path, Model model) throws IOException {
+    long nextId = rafService.getNextId(path, camposLengthFAA);
 
-        Map<String,String> registro = new HashMap<>();
-        registro.put("ID", String.valueOf(nextId));
-        for(String campo : camposFAA){
-            if(!campo.equals("ID")) registro.put(campo, "");
-        }
-
-        model.addAttribute("registro", registro);
-        model.addAttribute("campos", camposFAA);
-        model.addAttribute("camposLength", camposLengthFAA);
-        model.addAttribute("pos", nextId - 1); // posición final
-        model.addAttribute("archivoPath", faaFilePath);
-
-        return "editarRegistroFAA"; // Reutilizamos la misma vista
+    Map<String,String> registro = new HashMap<>();
+    for (String campo : camposFAA) {
+        registro.put(campo, "");
     }
 
+    model.addAttribute("registro", registro);
+    model.addAttribute("campos", camposFAA);
+    model.addAttribute("camposLength", camposLengthFAA);
+    model.addAttribute("pos", ""); // posición vacía = nuevo registro
+    model.addAttribute("archivoPath", path);
+    return "editarRegistroFAA";
+}
 
 
     @PostMapping("/guardarArchivoTxt")
@@ -192,7 +201,11 @@ public class WebController {
 
         rafService.guardarRegistro(path, camposFAA, camposLengthFAA, pos, registro);
 
+        System.out.println(registro);
+
         return "redirect:/editarArchivoFAA?path=" + URLEncoder.encode(path, StandardCharsets.UTF_8) + "&pos=" + pos;
     }
 
 }
+
+

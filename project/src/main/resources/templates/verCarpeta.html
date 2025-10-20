@@ -72,11 +72,11 @@
 
                     <!-- Botón Leer/Editar para archivos FAA -->
                     <div th:if="${!archivo.directory and archivo.extension == 'dat'}" style="display:inline">
-                        <form method="get" action="/editarArchivoFAA" style="display:inline">
-                            <input type="hidden" name="path" th:value="${archivo.path}">
-                            <button type="submit">Editar FAA</button>
-                        </form>
+                        <a th:href="@{/editarRegistroFAA(path=${archivo.path}, pos=0)}">
+                            <button type="button">Editar FAA</button>
+                        </a>
                     </div>
+
 
 
                 </td>

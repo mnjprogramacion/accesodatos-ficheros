@@ -35,7 +35,7 @@ public class RandomAccessFileService {
 
         try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
             long expectedPos = pos * longReg;
-            if (expectedPos > raf.length()) {
+            if (expectedPos > raf.length()) { 
                 // Mover al final del archivo si pos está más allá
                 raf.seek(raf.length());
             } else {
@@ -49,6 +49,9 @@ public class RandomAccessFileService {
                 String valorFormateado = String.format("%1$-" + len + "s", valor != null ? valor : "");
                 raf.write(valorFormateado.getBytes("ISO-8859-1"), 0, len);
             }
+
+            System.out.println("[GUARDAR REGISTRO] path=" + filePath + " pos=" + pos + " expectedPos=" + expectedPos + " length=" + raf.length());
+
         }
     }
 
